@@ -7,7 +7,7 @@ typedef Widget ImageWidgetBuilder(
     BuildContext context, ImageProvider imageProvider);
 typedef Widget PlaceholderWidgetBuilder(BuildContext context, String url);
 typedef Widget LoadingErrorWidgetBuilder(
-    BuildContext context, String url, Object error);
+    BuildContext context, String url, dynamic error);
 
 class CachedNetworkImage extends StatefulWidget {
   /// Option to use cachemanager with other settings
@@ -131,6 +131,10 @@ class CachedNetworkImage extends StatefulWidget {
   /// If not given a value, defaults to FilterQuality.low.
   final FilterQuality filterQuality;
 
+  final int cacheWidth;
+  
+  final int cacheHeight;
+
   CachedNetworkImage({
     Key key,
     @required this.imageUrl,
@@ -154,6 +158,8 @@ class CachedNetworkImage extends StatefulWidget {
     this.filterQuality: FilterQuality.low,
     this.colorBlendMode,
     this.placeholderFadeInDuration,
+    this.cacheWidth,
+    this.cacheHeight,
   })  : assert(imageUrl != null),
         assert(fadeOutDuration != null),
         assert(fadeOutCurve != null),
@@ -195,7 +201,7 @@ class _ImageTransitionHolder {
 
 class CachedNetworkImageState extends State<CachedNetworkImage>
     with TickerProviderStateMixin {
-  List<_ImageTransitionHolder> _imageHolders = List();
+  final _imageHolders = <_ImageTransitionHolder>[];
   Key _streamBuilderKey = UniqueKey();
 
   @override
@@ -258,7 +264,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
         animationController: AnimationController(
           vsync: this,
           duration: duration ??
-              (widget.fadeInDuration ?? Duration(milliseconds: 500)),
+              (widget.fadeInDuration ?? const Duration(milliseconds: 500)),
         ),
       ),
     );
@@ -287,7 +293,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
           var fileInfo = snapshot.data;
           if (fileInfo == null) {
             // placeholder
-            if (_imageHolders.length == 0 || _imageHolders.last.image != null) {
+            if (_imageHolders.isEmpty || _imageHolders.last.image != null) {
               _addImage(
                   image: null,
                   duration: widget.placeholderFadeInDuration ?? Duration.zero);
@@ -297,7 +303,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
               _imageHolders.last.image?.validTill != fileInfo.validTill) {
             _addImage(
                 image: fileInfo,
-                duration: _imageHolders.length > 0 ? null : Duration.zero);
+                duration: _imageHolders.isNotEmpty ? null : Duration.zero);
           }
         }
 
@@ -344,7 +350,8 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
     return widget.imageBuilder != null
         ? widget.imageBuilder(context, imageProvider)
         : Image(
-            image: imageProvider,
+            image: ResizeImage.resizeIfNeeded(
+                widget.cacheWidth, widget.cacheHeight, imageProvider),
             fit: widget.fit,
             width: widget.width,
             height: widget.height,
@@ -366,7 +373,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
           );
   }
 
-  _errorWidget(BuildContext context, Object error) {
+  Widget _errorWidget(BuildContext context, Object error) {
     return widget.errorWidget != null
         ? widget.errorWidget(context, widget.imageUrl, error)
         : _placeholder(context);

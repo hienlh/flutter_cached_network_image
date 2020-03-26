@@ -34,7 +34,8 @@ class MyHomePage extends StatelessWidget {
             ),
             _sizedContainer(
               CachedNetworkImage(
-                placeholder: (context, url) => CircularProgressIndicator(),
+                placeholder: (context, url) =>
+                    const CircularProgressIndicator(),
                 imageUrl: 'http://via.placeholder.com/200x150',
               ),
             ),
@@ -53,31 +54,38 @@ class MyHomePage extends StatelessWidget {
                     ),
                   ),
                 ),
-                placeholder: (context, url) => CircularProgressIndicator(),
+                placeholder: (context, url) =>
+                    const CircularProgressIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
             _sizedContainer(
               CachedNetworkImage(
                 imageUrl: 'http://notAvalid.uri',
-                placeholder: (context, url) => CircularProgressIndicator(),
+                placeholder: (context, url) =>
+                    const CircularProgressIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
             _sizedContainer(
               CachedNetworkImage(
                 imageUrl: 'not a uri at all',
-                placeholder: (context, url) => CircularProgressIndicator(),
+                placeholder: (context, url) =>
+                    const CircularProgressIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
             _sizedContainer(
               CachedNetworkImage(
                 imageUrl: 'http://via.placeholder.com/350x200',
-                placeholder: (context, url) => CircularProgressIndicator(),
+                placeholder: (context, url) =>
+                    const CircularProgressIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
                 fadeOutDuration: const Duration(seconds: 1),
                 fadeInDuration: const Duration(seconds: 3),
+                cacheWidth: 200,
+                width: 200,
+                fit: BoxFit.fill,
               ),
             ),
           ],
